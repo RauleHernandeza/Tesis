@@ -1,24 +1,33 @@
-// Se utiliza para obtener información de la máquina.
-var os = require('os');
- 
- // Obtener la información de la CPU de la máquina actual
- let x
- x=os.cpus ()
+var dgram = require('dgram')
+var Client = dgram.createSocket('udp4')
+var os = require('os')
+var spawn = require('child_process').spawn
 
-//Se le coloca un -1 al x.leght para evitar un error
- for (i=0; i<=x.length-1; i++){ 
-    let p=x[i].times.user
-    console.log ('Información de la CPU:', p)
- }
 
- console.log ('Información de la CPU:', x)
- //console.log ('Información de la CPU:', x)
- 
- // memoria memoria
- //console.log ('memoria memoria es:', os.totalmem ())
- 
- // Bits del sistema (x64, x86)
-//console.log(os.arch())
- 
- // Información de la tarjeta de red
-//console.log(os.networkInterfaces())
+function conection(timer, port, ip){
+
+        setInterval(()=>{
+
+            //monitoring data
+
+            let average_load, architecture, temp, send, hostname, speed
+            architecture= os.arch()
+            average_load= os.loadavg()
+            hostname= os.hostname()
+            speed= os.cpus()[0].speed
+            send= new Array(average_load, architecture, hostname)
+            temp = spawn('cat', ['/sys/class/thermal/thermal_zone0/temp'])
+
+            //Cliente_UDP and teperature
+            temp.stdout.on('data', function(temperature) {
+                Client.send(send + "," +temperature/1000, port, ip)
+            })
+
+        },timer)
+}
+
+conection(2000, 8081, "localhost")
+
+module.exports = {
+    conection
+}
