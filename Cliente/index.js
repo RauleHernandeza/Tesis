@@ -10,17 +10,23 @@ function conection(timer, port, ip){
 
             //monitoring data
 
-            let average_load, architecture, temp, send, hostname, speed
-            architecture= os.arch()
-            average_load= os.loadavg()
-            hostname= os.hostname()
-            speed= os.cpus()[0].speed
-            send= new Array(average_load, architecture, hostname)
+            let temp
+
+            let data= {
+                architecture: os.arch(),
+                average_load: os.loadavg(),
+                hostname: os.hostname(),
+                speed: os.cpus()[0].speed
+            }
+            
             temp = spawn('cat', ['/sys/class/thermal/thermal_zone0/temp'])
 
-            //Cliente_UDP and teperature
-            temp.stdout.on('data', function(temperature) {
-                Client.send(send + "," +temperature/1000, port, ip)
+            //Client_UDP and temperature
+            temp.stdout.on('data', function(temp) {
+                temperature = temp.toString()/1000
+                console.log(temperature)
+                data.temperature= temperature + " celcius"
+                Client.send(JSON.stringify(data), port, ip)
             })
 
         },timer)

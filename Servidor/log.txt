@@ -1,6 +1,0 @@
-first_average_load:0.78
-second_average_load:0.69
-third_average_load:0.69
-architecture:x64
-hostname:raul-desktop
-temperatura:44
