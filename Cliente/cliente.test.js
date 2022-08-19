@@ -1,9 +1,12 @@
 jest.useFakeTimers();
 jest.spyOn(global, 'setInterval');
 
-test('confirm data', () => {
-  const {conection} = require('./index');
-  conection(2000, 8081, "localhost")
+test('test data', () => {
+  const {conection, data} = require('./index')
+  conection(2000, 8081, "localhost", data)
   
-  expect(setInterval).toHaveBeenCalledTimes(1);
-});
+  
+  expect(setInterval).toHaveBeenCalledTimes(1)
+  expect(setInterval).toHaveBeenLastCalledWith(expect.any(Function), 2000)
+
+})
