@@ -2,7 +2,7 @@ var dgram = require('dgram')
 var Client = dgram.createSocket('udp4')
 var os = require('os')
 var spawn = require('child_process').spawn
-
+//hola mundo
 
 function conection(timer, port, ip){
 
@@ -32,7 +32,7 @@ function conection(timer, port, ip){
         },timer)
 }
 
-conection(2000, 8081, "localhost")
+//conection(2000, 8081, "localhost")
 
 module.exports = {
     conection
