@@ -17,7 +17,7 @@ function Server(showlog, serverport, hostt, userr, passwordd, databasee, dbportt
         console.log(JSON.parse(msg))
         console.log(rinfo)
         let data = JSON.parse(msg)
-        await send_data(pool, data, rinfo)
+        await save_data(pool, data, rinfo)
         const receive = await receive_data(pool, data, rinfo)
         const statistics = stat(pool, receive)
     })
@@ -26,7 +26,7 @@ function Server(showlog, serverport, hostt, userr, passwordd, databasee, dbportt
 
 }
 
-const send_data = async (pool, data, rinfo) => {
+const save_data = async (pool, data, rinfo) => {
 
     try {
 
@@ -45,8 +45,6 @@ const send_data = async (pool, data, rinfo) => {
         const send3 = await pool.query(insert, values)
         //console.log(send3.rows);
 
-        //console.log(send.rows[0].id_data_collection);
-        //return send
     }
     catch (err) {
         console.log(err)
@@ -54,9 +52,9 @@ const send_data = async (pool, data, rinfo) => {
 
 }
 
-const receive_data = async (pool, data, rinfo)=>{
+const receive_data = async (pool, data, rinfo) => {
 
-    try{
+    try {
 
         let query = 'select * from data_collection where hostname = $1 and address = $2'
         let value = [data.hostname, rinfo.address]
@@ -71,24 +69,33 @@ const receive_data = async (pool, data, rinfo)=>{
 
 }
 
-const stat = async (pool, receive)=>{
+const stat = async (pool, receive) => {
 
-    let Dividend = 0
+    let temperature_summation = 0
     let ram_summation = 0
     let conver = 0
+    let total_ram= 0
+    let available_ram = 0
     let Splitter = receive.rows.length
-    receive.rows.map( x => {
-    console.log(x)
-    Dividend= Dividend + x.temperature_celcius
-    conver = x.freemem / 1000000000
-    ram_summation = ram_summation + conver
+
+    receive.rows.map(x => {
+
+        console.log(x)
+        temperature_summation = temperature_summation + x.temperature_celcius
+        conver = x.freemem / 1000000000
+        ram_summation = ram_summation + conver
+        total_ram = x.totalment / 1000000000
+        available_ram 
     })
-    console.log(Dividend)
-    console.log(Splitter)
+
     let average_ram = ram_summation / Splitter
-    let average_temperature = Dividend / Splitter
+    let average_temperature = temperature_summation / Splitter
+    
+    console.log(total_ram)
     console.log(average_temperature.toFixed(2))
     console.log(average_ram.toFixed(2))
+
+    return {average_ram: average_ram, average_temperature:average_temperature}
 }
 
 
@@ -98,36 +105,8 @@ module.exports = {
     Server
 }
 
-        //console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`)
-        //let r = JSON.parse(msg)
-        //console.log(r.freemem)
-        //let average_temperatur = +r.temperature
-        //console.log(average_temperatur)
-        // let average_temperature
-        //console.log(r.cpus[0].model)
+
 /* console.log('Avarage_Temperature= 41,7 celcius')
 console.log('Average_Ram_consumed= 0,644116165 GB') */
-        //console.log('Available_space=');
+//console.log('Available_space=');
 
-/*  if(showlog){
-socket.on('message', (msg, rinfo) => {
-
- console.log(JSON.parse(msg))
- 
-});    
- 
-socket.bind(8081); 
-}
-else{
-socket.on('message', (msg, rinfo) => {
-});    
- 
-socket.bind(8081);
-} */
-
-/*  let y = r.freemem
-y = y / 1000000000
-let t = r.totalment
-t = t / 1000000000
-console.log(y);
-console.log(t); */
