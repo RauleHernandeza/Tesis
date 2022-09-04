@@ -14,5 +14,8 @@
   },
   "jest": {
     "testEnvironment": "node"
+  },
+  "dependencies": {
+    "diskinfo": "^0.0.3"
   }
 }

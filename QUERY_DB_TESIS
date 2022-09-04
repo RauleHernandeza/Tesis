@@ -1,0 +1,57 @@
+CREATE TABLE Data_Collection (
+    ID_Data_Collection SERIAL NOT NULL,
+    architecture VARCHAR NOT NULL,
+    hostname VARCHAR NOT NULL,
+    freemem double precision NOT NULL,
+    platform VARCHAR NOT NULL,
+    totalment double precision NOT NULL,
+    uptime REAL NOT NULL,
+    temperature_Celcius INTEGER NOT NULL,
+    address VARCHAR NOT NULL,
+    CONSTRAINT id_data_collection PRIMARY KEY (ID_Data_Collection)
+);
+
+CREATE TABLE Average_Load (
+    ID_Average_Load SERIAL NOT NULL,
+    ID_Data_Collection INTEGER NOT NULL,
+    first_load REAL NOT NULL,
+    second_load REAL NOT NULL,
+    third_load REAL NOT NULL,
+    CONSTRAINT average_loadd PRIMARY KEY (ID_Average_Load)
+);
+
+ALTER TABLE Average_Load ADD CONSTRAINT id_data_collectionfk
+FOREIGN KEY (ID_Data_Collection)
+REFERENCES Data_Collection (ID_Data_Collection);
+
+CREATE TABLE Statistics (
+    ID_Statistics SERIAL NOT NULL,
+    ID_Data_Collection INTEGER NOT NULL,
+    average_temperature REAL,
+    average_ram_consumed REAL,
+    average_running REAL,
+    available_space REAL,
+    CONSTRAINT id_statistics PRIMARY KEY (ID_Statistics)
+);
+
+ALTER TABLE Statistics ADD CONSTRAINT id_data_collectionfkk
+FOREIGN KEY (ID_Data_Collection)
+REFERENCES Data_Collection (ID_Data_Collection);
+
+CREATE TABLE cpus (
+    ID_Cpus SERIAL NOT NULL,
+    ID_Data_Collection INTEGER NOT NULL,
+    first_model VARCHAR,
+    first_model_speed VARCHAR,
+    second_model VARCHAR,
+    second_model_speed VARCHAR,
+    third_model VARCHAR,
+    third_model_speed VARCHAR,
+    fourth_model VARCHAR,
+    fourth_model_speed VARCHAR,
+    CONSTRAINT cpusfk PRIMARY KEY (ID_Cpus)
+);
+
+ALTER TABLE cpus ADD CONSTRAINT cpusfkk
+FOREIGN KEY (ID_Data_Collection)
+REFERENCES Data_Collection (ID_Data_Collection)
