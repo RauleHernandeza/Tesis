@@ -29,8 +29,8 @@ CREATE TABLE Statistics (
     ID_Data_Collection INTEGER NOT NULL,
     average_temperature REAL,
     average_ram_consumed REAL,
-    average_running REAL,
-    available_space REAL,
+    arrive_time TIME,
+    arrive_date date,
     CONSTRAINT id_statistics PRIMARY KEY (ID_Statistics)
 );
 

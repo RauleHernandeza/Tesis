@@ -17,9 +17,11 @@ function Server(showlog, serverport, hostt, userr, passwordd, databasee, dbportt
         console.log(JSON.parse(msg))
         console.log(rinfo)
         let data = JSON.parse(msg)
-        await save_data(pool, data, rinfo)
+        const send = await save_data(pool, data, rinfo)
         const receive = await receive_data(pool, data, rinfo)
-        const statistics = stat(pool, receive)
+        const statistics = stat(receive)
+        await send_statistic(pool, send, statistics)
+
     })
 
     socket.bind(serverport)
@@ -45,6 +47,8 @@ const save_data = async (pool, data, rinfo) => {
         const send3 = await pool.query(insert, values)
         //console.log(send3.rows);
 
+        return send
+
     }
     catch (err) {
         console.log(err)
@@ -69,33 +73,51 @@ const receive_data = async (pool, data, rinfo) => {
 
 }
 
-const stat = async (pool, receive) => {
+const stat = (receive) => {
 
     let temperature_summation = 0
     let ram_summation = 0
     let conver = 0
-    let total_ram= 0
-    let available_ram = 0
     let Splitter = receive.rows.length
+    let hostname = ''
 
     receive.rows.map(x => {
 
         console.log(x)
         temperature_summation = temperature_summation + x.temperature_celcius
-        conver = x.freemem / 1000000000
+        conver = x.freemem / 1000000000 //transform from byte to Gygas
         ram_summation = ram_summation + conver
-        total_ram = x.totalment / 1000000000
-        available_ram 
+        hostname = x.hostname
     })
 
     let average_ram = ram_summation / Splitter
     let average_temperature = temperature_summation / Splitter
     
-    console.log(total_ram)
-    console.log(average_temperature.toFixed(2))
-    console.log(average_ram.toFixed(2))
+
+    console.log('average temperature of ' + hostname + ' ' + average_temperature.toFixed(2) + ' celcius')
+    console.log('average ram consumed of ' + hostname + ' ' + average_ram.toFixed(2) + 'GB')
 
     return {average_ram: average_ram, average_temperature:average_temperature}
+}
+
+const send_statistic = async (pool, send, statistics) => {
+
+    try {
+        let date = new Date()
+        let time = '' + date.getHours() - 12 + ':' + date.getMinutes()  + ':' + date.getSeconds()
+        let ship_date = '' + date.getDate() + '-' + date.getMonth() + '-' + date.getFullYear()
+        let query = 'insert into Statistics (ID_Data_Collection, average_temperature, average_ram_consumed, arrive_time, arrive_date) values ($1, $2, $3, $4, $5) returning *'
+        let value = [send.rows[0].id_data_collection, statistics.average_ram, statistics.average_temperature, time, ship_date]
+        const receive = await pool.query(query, value)
+        /* console.log(time)
+        console.log(ship_date) */
+        //console.log(receive.rows)
+
+    }
+    catch (err) {
+        console.log(err)
+    }
+
 }
 
 
@@ -104,9 +126,3 @@ Server(true, 8081, 'localhost', 'postgres', 'postgres', 'Tesis2', '5432')
 module.exports = {
     Server
 }
-
-
-/* console.log('Avarage_Temperature= 41,7 celcius')
-console.log('Average_Ram_consumed= 0,644116165 GB') */
-//console.log('Available_space=');
-
