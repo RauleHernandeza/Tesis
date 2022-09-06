@@ -14,12 +14,16 @@ function Server(showlog, serverport, hostt, userr, passwordd, databasee, dbportt
 
 
     socket.on('message', async (msg, rinfo) => {
+
+        if (showlog){
         console.log(JSON.parse(msg))
         console.log(rinfo)
+        }
+        
         let data = JSON.parse(msg)
         const send = await save_data(pool, data, rinfo)
         const receive = await receive_data(pool, data, rinfo)
-        const statistics = stat(receive)
+        const statistics = averages(receive, showlog)
         await send_statistic(pool, send, statistics)
 
     })
@@ -73,7 +77,7 @@ const receive_data = async (pool, data, rinfo) => {
 
 }
 
-const stat = (receive) => {
+const averages = (receive, showlog) => {
 
     let temperature_summation = 0
     let ram_summation = 0
@@ -93,10 +97,11 @@ const stat = (receive) => {
     let average_ram = ram_summation / Splitter
     let average_temperature = temperature_summation / Splitter
     
-
-    console.log('average temperature of ' + hostname + ' ' + average_temperature.toFixed(2) + ' celcius')
-    console.log('average ram consumed of ' + hostname + ' ' + average_ram.toFixed(2) + 'GB')
-
+    if(showlog){
+        console.log(' average temperature of ' + hostname + ' ' + average_temperature.toFixed(2) + ' celcius')
+        console.log(' average ram consumed of ' + hostname + ' ' + average_ram.toFixed(2) + ' GB')
+    }
+    
     return {average_ram: average_ram, average_temperature:average_temperature}
 }
 
@@ -104,14 +109,12 @@ const send_statistic = async (pool, send, statistics) => {
 
     try {
         let date = new Date()
-        let time = '' + date.getHours() - 12 + ':' + date.getMinutes()  + ':' + date.getSeconds()
+        let time = '' + date.getHours() + ':' + date.getMinutes()  + ':' + date.getSeconds()
         let ship_date = '' + date.getDate() + '-' + date.getMonth() + '-' + date.getFullYear()
         let query = 'insert into Statistics (ID_Data_Collection, average_temperature, average_ram_consumed, arrive_time, arrive_date) values ($1, $2, $3, $4, $5) returning *'
         let value = [send.rows[0].id_data_collection, statistics.average_ram, statistics.average_temperature, time, ship_date]
         const receive = await pool.query(query, value)
-        /* console.log(time)
-        console.log(ship_date) */
-        //console.log(receive.rows)
+
 
     }
     catch (err) {
