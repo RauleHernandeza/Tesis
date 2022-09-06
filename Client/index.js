@@ -1,8 +1,6 @@
 var dgram = require('dgram')
 var Client = dgram.createSocket('udp4')
-/* var Client2 = dgram.createSocket('udp4') */
 var os = require('os')
-var d = require('diskinfo');
 var spawn = require('child_process').spawn
 
 function send_information(timer, port, ip){
